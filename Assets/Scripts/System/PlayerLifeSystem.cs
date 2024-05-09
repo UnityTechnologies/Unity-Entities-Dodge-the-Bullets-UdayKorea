@@ -1,58 +1,57 @@
 using Unity.Burst;
+using Unity.Collections;
 using Unity.Entities;
 using Unity.Mathematics;
-using Unity.Rendering;
 using Unity.Transforms;
 
 [BurstCompile]
 public partial struct PlayerLifeSystem : ISystem
 {
+    private EntityQuery playerQuery;
+    
     public void OnCreate(ref SystemState state)
     {
+        // LocalTransform and Player
+        playerQuery = state.EntityManager.CreateEntityQuery(
+            ComponentType.ReadOnly<LocalTransform>(),
+            ComponentType.ReadOnly<Player>());
+        
         state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
-        state.RequireForUpdate<GameState>();
     }
 
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {
-        var gameState = SystemAPI.GetSingleton<GameState>();
-
-        if (gameState.IsGameOver)
+        if(playerQuery.CalculateEntityCount() == 0)
         {
             return;
         }
-
-        var playerCount = gameState.PlayerCount;
         
-        foreach (var (playerTransform, playerEntity)
-                 in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Player>().WithEntityAccess())
+        var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
+        var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+        
+        var playerEntities 
+            = playerQuery.ToEntityArray(Allocator.TempJob);
+        var playerTransforms 
+            = playerQuery.ToComponentDataArray<LocalTransform>(Allocator.TempJob);
+        
+        // compare position with bullets and destroy player if they are close
+        for (var i = 0; i < playerEntities.Length; i++)
         {
-            var ecbSingleton = SystemAPI.GetSingleton<EndSimulationEntityCommandBufferSystem.Singleton>();
-            var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
+            var playerTransform = playerTransforms[i];
+            var playerEntity = playerEntities[i];
             
-            foreach (var bulletTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Bullet>())
+            foreach (var bulletTransformRef 
+                     in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Bullet>())
             {
-                if (math.distance(playerTransform.ValueRO.Position, bulletTransform.ValueRO.Position)
-                    < 0.1)
+                var distance 
+                    = math.distance(playerTransform.Position, bulletTransformRef.ValueRO.Position);
+
+                if (distance < 0.1)
                 {
-                    // //SystemAPI.GetSingleton<GameState>().IsGameOver = true;
-                    SystemAPI.SetComponentEnabled<Player>(playerEntity, false);
-                    
-                    // disable player rendering by adding DisableRendering with EntityCommandBuffer
-                    ecb.AddComponent<DisableRendering>(playerEntity);
-                    playerCount--;
-                    break;
+                    ecb.DestroyEntity(playerEntity);
                 }
             }
         }
-
-        if (playerCount == gameState.PlayerCount)
-        {
-            return;
-        }
-        
-        gameState.PlayerCount = playerCount;
-        SystemAPI.SetSingleton(gameState);
     }
 }

@@ -5,11 +5,6 @@ using Unity.Transforms;
 [BurstCompile]
 public partial struct MovementSystem : ISystem
 {
-    public void OnCreate(ref SystemState state)
-    {
-        state.RequireForUpdate<Player>();
-    }
-
     [BurstCompile]
     public void OnUpdate(ref SystemState state)
     {

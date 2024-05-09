@@ -7,7 +7,6 @@ public partial struct PlayerSpawnSystem : ISystem, ISystemStartStop
 {
     public void OnCreate(ref SystemState state)
     {
-        state.RequireForUpdate<GameState>();
         state.RequireForUpdate<PlayerSpawner>();
     }
 
@@ -17,7 +16,6 @@ public partial struct PlayerSpawnSystem : ISystem, ISystemStartStop
 
     public void OnStartRunning(ref SystemState state)
     {
-        var gameState = SystemAPI.GetSingleton<GameState>();
         var playerSpawner = SystemAPI.GetSingleton<PlayerSpawner>();
         
         var rowCount = playerSpawner.PlayerCountInRow;
@@ -34,11 +32,8 @@ public partial struct PlayerSpawnSystem : ISystem, ISystemStartStop
                 var localTransform = SystemAPI.GetComponent<LocalTransform>(playerEntity);
                 localTransform.Position = startPosition + new float3(i * offset, 0, j * offset);
                 state.EntityManager.SetComponentData(playerEntity, localTransform);
-                gameState.PlayerCount++;
             }
         }
-        gameState.IsGameRunning = true;
-        SystemAPI.SetSingleton(gameState);
     }
 
     public void OnStopRunning(ref SystemState state)

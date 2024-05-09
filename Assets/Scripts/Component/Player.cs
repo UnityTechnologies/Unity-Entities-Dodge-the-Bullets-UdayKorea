@@ -1,6 +1,6 @@
 using Unity.Entities;
 
-public struct Player : IEnableableComponent, IComponentData
+public struct Player : IComponentData
 {
     public float Speed;
 }
