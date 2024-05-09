@@ -1,9 +1,10 @@
 using Unity.Entities;
 using Unity.Mathematics;
+using Unity.Rendering;
 using Unity.Transforms;
 
 // OnUpdate를 BulletVelocitySystem의 OnUpdate 이후에 실행
-[UpdateAfter(typeof(BulletVelocitySystem))]
+[UpdateAfter(typeof(VelocitySystem))]
 public partial struct BulletDestroySystem : ISystem
 {
     public void OnCreate(ref SystemState state)
@@ -28,7 +29,7 @@ public partial struct BulletDestroySystem : ISystem
         // 엔티티 커맨드 버퍼를 생성한다.
         var ecb = ecbSingleton.CreateCommandBuffer(state.WorldUnmanaged);
 
-        // 총알이 화면 밖으로 나가면 파괴한다
+        // 총알이 화면 밖으로 나가면 비활성화하여 풀로 되돌린다
         // WithAll로 총알을 찾고, WithEntityAccess로 엔티티를 가져온다.
         foreach (var (transform, entity) in
                  SystemAPI.Query<RefRO<LocalTransform>>()
@@ -37,7 +38,8 @@ public partial struct BulletDestroySystem : ISystem
         {
             if (math.abs(transform.ValueRO.Position.x) > 40 || math.abs(transform.ValueRO.Position.z) > 40)
             {
-                ecb.DestroyEntity(entity);
+                ecb.AddComponent<Disabled>(entity);
+                ecb.AddComponent<DisableRendering>(entity);
             }
         }
     }

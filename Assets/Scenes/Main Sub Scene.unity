@@ -243,12 +243,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   bulletPrefab: {fileID: 2647105497707921412, guid: b4cc641e151004d63a1aa04815bbf1cf,
     type: 3}
-  maxConcurrentSpawnCount: 3
-  timeBetSpawnMin: 0.5
-  timeBetSpawnMax: 3
-  spawnRadius: 20
-  bulletSpeedMin: 2
-  bulletSpeedMax: 8
+  poolSize: 10000
+  countPerEachSpawn: 300
+  spawnPositionRadius: 20
+  timeBetSpawn: 3
+  bulletSpeedMinMax: {x: 1, y: 3}
 --- !u!4 &1729111625
 Transform:
   m_ObjectHideFlags: 0

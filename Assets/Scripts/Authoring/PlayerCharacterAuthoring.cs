@@ -14,8 +14,3 @@ public class PlayerCharacterAuthoring : MonoBehaviour
         }
     }
 }
-
-public struct Player : IEnableableComponent, IComponentData
-{
-    public float Speed;
-}

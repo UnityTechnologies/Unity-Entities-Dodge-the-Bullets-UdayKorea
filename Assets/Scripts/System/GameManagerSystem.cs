@@ -8,7 +8,6 @@ using Input = UnityEngine.Input;
 public partial class GameManagerSystem : SystemBase
 {
     public Action OnGameOver = () => { };
-    public Action<double> OnTimeUpdate = _ => { };
 
     protected override void OnCreate()
     {
@@ -19,14 +18,11 @@ public partial class GameManagerSystem : SystemBase
     protected override void OnUpdate()
     {
         var gameState = SystemAPI.GetSingleton<GameState>();
-        var elapsedTime = SystemAPI.Time.ElapsedTime;
 
         if (!gameState.IsGameRunning || gameState.IsGameOver)
         {
             return;
         }
-        
-        OnTimeUpdate(elapsedTime);
         
         if (gameState.PlayerCount == 0)
         {

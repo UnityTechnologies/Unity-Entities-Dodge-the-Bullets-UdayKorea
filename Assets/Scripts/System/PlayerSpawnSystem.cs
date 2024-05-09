@@ -3,7 +3,7 @@ using Unity.Mathematics;
 using Unity.Transforms;
 
 [UpdateBefore(typeof(TransformSystemGroup))]
-public partial struct PlayerSpawnSystem : ISystem
+public partial struct PlayerSpawnSystem : ISystem, ISystemStartStop
 {
     public void OnCreate(ref SystemState state)
     {
@@ -13,11 +13,13 @@ public partial struct PlayerSpawnSystem : ISystem
 
     public void OnUpdate(ref SystemState state)
     {
-        state.Enabled = false;
-        
+    }
+
+    public void OnStartRunning(ref SystemState state)
+    {
         var gameState = SystemAPI.GetSingleton<GameState>();
-        
         var playerSpawner = SystemAPI.GetSingleton<PlayerSpawner>();
+        
         var rowCount = playerSpawner.PlayerCountInRow;
         var colCount = playerSpawner.PlayerCountInColumn;
         var offset = playerSpawner.Offset;
@@ -36,7 +38,11 @@ public partial struct PlayerSpawnSystem : ISystem
             }
         }
         gameState.IsGameRunning = true;
-        
         SystemAPI.SetSingleton(gameState);
+    }
+
+    public void OnStopRunning(ref SystemState state)
+    {
+        
     }
 }

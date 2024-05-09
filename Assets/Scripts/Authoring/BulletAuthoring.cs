@@ -15,8 +15,3 @@ public class BulletAuthoring : MonoBehaviour
         }
     }
 }
-
-// 총알을 나타내는 컴포넌트
-public struct Bullet : IComponentData
-{
-}

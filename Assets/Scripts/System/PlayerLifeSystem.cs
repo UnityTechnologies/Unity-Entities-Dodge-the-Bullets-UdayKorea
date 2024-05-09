@@ -7,8 +7,6 @@ using Unity.Transforms;
 [BurstCompile]
 public partial struct PlayerLifeSystem : ISystem
 {
-    private const float MinDistanceBetBulletAndPlayer = 0.1f;
-    private const float MinDistanceBetBulletAndPlayerSQ = MinDistanceBetBulletAndPlayer * MinDistanceBetBulletAndPlayer; 
     public void OnCreate(ref SystemState state)
     {
         state.RequireForUpdate<EndSimulationEntityCommandBufferSystem.Singleton>();
@@ -35,8 +33,8 @@ public partial struct PlayerLifeSystem : ISystem
             
             foreach (var bulletTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Bullet>())
             {
-                if (math.distancesq(playerTransform.ValueRO.Position, bulletTransform.ValueRO.Position)
-                    < MinDistanceBetBulletAndPlayerSQ)
+                if (math.distance(playerTransform.ValueRO.Position, bulletTransform.ValueRO.Position)
+                    < 0.01)
                 {
                     // //SystemAPI.GetSingleton<GameState>().IsGameOver = true;
                     SystemAPI.SetComponentEnabled<Player>(playerEntity, false);
@@ -49,10 +47,12 @@ public partial struct PlayerLifeSystem : ISystem
             }
         }
 
-        if (playerCount != gameState.PlayerCount)
+        if (playerCount == gameState.PlayerCount)
         {
-            gameState.PlayerCount = playerCount;
-            SystemAPI.SetSingleton(gameState);
+            return;
         }
+        
+        gameState.PlayerCount = playerCount;
+        SystemAPI.SetSingleton(gameState);
     }
 }
