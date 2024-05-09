@@ -3,7 +3,7 @@ using Unity.Entities;
 using Unity.Transforms;
 
 [BurstCompile]
-public partial struct VelocitySystem : ISystem
+public partial struct MovementSystem : ISystem
 {
     public void OnCreate(ref SystemState state)
     {

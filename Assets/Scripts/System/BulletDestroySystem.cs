@@ -4,7 +4,7 @@ using Unity.Rendering;
 using Unity.Transforms;
 
 // OnUpdate를 BulletVelocitySystem의 OnUpdate 이후에 실행
-[UpdateAfter(typeof(VelocitySystem))]
+[UpdateAfter(typeof(MovementSystem))]
 public partial struct BulletDestroySystem : ISystem
 {
     public void OnCreate(ref SystemState state)

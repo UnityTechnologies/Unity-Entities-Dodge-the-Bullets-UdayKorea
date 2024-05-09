@@ -34,7 +34,7 @@ public partial struct PlayerLifeSystem : ISystem
             foreach (var bulletTransform in SystemAPI.Query<RefRO<LocalTransform>>().WithAll<Bullet>())
             {
                 if (math.distance(playerTransform.ValueRO.Position, bulletTransform.ValueRO.Position)
-                    < 0.01)
+                    < 0.1)
                 {
                     // //SystemAPI.GetSingleton<GameState>().IsGameOver = true;
                     SystemAPI.SetComponentEnabled<Player>(playerEntity, false);
